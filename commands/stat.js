@@ -32,7 +32,8 @@ module.exports = {
                         status: obj.status
                     };
                     STATS.push(object);
-                    if(STATS.length==list.length) {
+                    if(STATS.length==list.length-1) {
+                        console.log("stats:", STATS)
                         let embed = new discord.MessageEmbed()
                         for(var ind in STATS) {
                             embed.addFields(
