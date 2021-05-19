@@ -12,7 +12,7 @@ module.exports = {
             {
                 // Get the contents of each file on iteration.
                 var filename = list[i];
-        
+                if(filename === ".gitkeep") continue;
                 fs.readFile("storage/" + filename, function(err, data)
                 {
                     if(err) {
