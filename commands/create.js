@@ -1,13 +1,22 @@
 const discord = require('discord.js') 
 const fs = require('fs');
 module.exports = {
-    create_node: async function(message,client,args){
+    driver: async function(message,client,args){
+        if(args.length > 2) {
+            console.log(args.length);
+            message.channel.send("invalid input! - create command: ```!create <node name> <capacity (integer)>```");
+            return;  
+          }
+          if(isNaN(Number(args[1]))) {
+            message.channel.send("capacity must be an integer!");
+            return;
+          }
         let node_name = args[0];
         let props = {
             nama_node: node_name,
             slot: 0,
             cap: Number(args[1]),
-            status: "online"
+            status: "ONLINE"
         };
         let data = JSON.stringify(props,null,5);
         

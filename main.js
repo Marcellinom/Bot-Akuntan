@@ -1,4 +1,5 @@
 const discord = require('discord.js');
+const fs = require('fs');
 const client = new discord.Client();
 const prefix = "!";
 require('dotenv').config();
@@ -19,53 +20,31 @@ client.on('message', async (message) => {
     }
     let comTemp = args
     const command = comTemp.shift().toLowerCase();
+    
 
     console.log("arguments:",args);
 
-    if (command == 'create') 
-    {
-      if(args.length > 2) {
-        console.log(args.length);
-        message.channel.send("invalid input! - create command: ```!create <node name> <capacity (integer)>```");
-        return;  
+    if(command==='channel') {
+      let raw = fs.readFileSync('./channel.json');
+      let id = JSON.parse(raw).id
+      if(id=='') {
+          message.channel.send("assign a channel first!")
+          return;
       }
-      if(isNaN(Number(args[1]))) {
-        message.channel.send("capacity must be an integer!");
-        return;
-      }
-      require('./commands/create.js').create_node(message,client,args);
-    } 
-
-    else if (command == 'add') 
-    {
-      if(args.length > 2) {
-        message.channel.send("invalid input! - add value command: ```!add <node name> <value(integer)>```");
-        return;  
-      }
-      if(isNaN(Number(args[1]))) {
-        message.channel.send("argument 2 must be an integer!");
-        return;
-      }
-      require('./commands/add.js').add_node(message,client,args);
-    } 
-
-    else if(command == 'min') 
-    {
-      if(args.length > 2) {
-        message.channel.send("invalid input! - min value command: ```!add <node name> <value(integer)>```");
-        return;  
-      }
-      if(isNaN(Number(args[1]))) {
-        message.channel.send("argument 2 must be an integer!");
-        return;
-      }
-      require('./commands/min.js').min_node(message,client,args);
+      let ch = await client.channels.fetch(id);
+      message.channel.send(`announcement on ${ch.toString()}`);
+      return;
     }
 
-    else if(command == 'stat')
-    {
-      require('./commands/stat.js').getstat(message,client,args);
+    try {
+      if (fs.existsSync(`commands/${command}.js`)) {
+        require(`./commands/${command}.js`).driver(message,client,args);
+      }
+    } catch(err) {
+      message.channel.send("Command doesn't exist!");
+      console.error(err)
     }
+      
 });
 
 client.login(process.env.maintoken)
