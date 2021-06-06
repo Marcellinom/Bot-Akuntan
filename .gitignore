@@ -2,6 +2,9 @@ node_modules
 config.json
 .env
 # storage/*
+storage/*
 !storage/.gitkeep 
+
 # order/*
+order/*
 !order/.gitkeep 
