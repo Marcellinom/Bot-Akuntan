@@ -1,13 +1,266 @@
 const discord = require('discord.js');
 const fs = require('fs');
 const client = new discord.Client();
+const Keyv = require('keyv');
+const keyv = new Keyv();
 const prefix = "!";
 require('dotenv').config();
 
+client.once('ready', () => { 
+  console.log('bot active!') 
+})
 
-client.once('ready', () => { console.log('bot active!') })
+const slash = client.api.applications('844570150610927671').guilds('424506121751887873').commands
+client.on('ready', ()=>{
+// create new node
+slash.post({
+  data: {
+    name: "create",
+    description: "create new node",
+    options: 
+      [{
+        name:"node",
+        description:"the name of a node you want to create - (string)",
+        type:3,
+        required:true
+      },{
+        name:"capacity",
+        description:"the node maximum capacity - (integer)",
+        type:4,
+        required:true
+      }]
+  }
+});
 
+// assigning announcement channel
+slash.post({
+  data: {
+    name: "assign",
+    description: "assign a notification channel",
+    options:[{
+      name:"channel",
+      description:"mention a channel",
+      type:7,
+      required:true
+    }]
+  }
+});
+
+// show stat
+slash.post({
+  data: {
+    name:"stat",
+    description:"show the current node stats on announcement channel"
+  }
+});
+
+// make new order
+slash.post({
+  data: {
+    name:"order",
+    description:"make an order",
+    options:[{
+      name:"channel",
+      description:"tag channel to announce",
+      type:7,
+      required:true
+    },{
+      name:"user",
+      description:"tag a user who orders this",
+      type:6,
+      required:true
+    },{
+      name:"item",
+      description:"the item that's gonna be ordered",
+      type:3,
+      required:true
+    },{
+      name:"payment",
+      description:"payment method",
+      type:3,
+      required:true
+    },{
+      name:"status",
+      description:"current status of payment",
+      type:3,
+      required:true
+    }]
+  }
+});
+
+});
+
+client.on('ready', () => {
+
+  var filenames = fs.readdirSync('storage/');
+
+  var nodes = [];
+  for(var i in filenames) {
+    if(filenames[i]==='.gitkeep') continue;
+    var filename = filenames[i].replace('.json','');
+
+    let obj = {
+      name:filename,
+      value:filename
+    }
+    nodes.push(obj)
+  }
+
+  console.log("choices bawah:",nodes)
+
+// remove a node
+slash.post({
+    data: {
+      name: "remove",
+      description: "remove a node",
+      options:[{
+        name:"node",
+        description:"the name of the NODE you want to remove",
+        type:3,
+        required:true,
+        choices: nodes
+      }]
+    }
+})
+// adding a node slot value
+slash.post({
+    data: {
+      name: "add",
+      description: "add a node slot value",
+      options:[{
+        name:"node",
+        description:"the name of the NODE the slot you want to add",
+        type:3,
+        required:true,
+        choices: nodes
+      },{
+        name:"value",
+        description:"the value you want to add to the slot - (integer)",
+        type:4,
+        required:true
+      }]
+    }
+})
+// minus a node slot value
+slash.post({
+    data: {
+      name: "min",
+      description: "minus a node slot value",
+      options:[{
+        name:"node",
+        description:"the name of the NODE the slot you want to min",
+        type:3,
+        required:true,
+        choices: nodes
+      },{
+        name:"value",
+        description:"the value you want to min to the slot - (integer)",
+        type:4,
+        required:true
+      }]
+    }
+})
+
+// view nodes info
+slash.post({
+  data: {
+    name:"info",
+    description:"view node info",
+    options:[{
+      name:"node",
+      description:"the name of the node you want see",
+      type:3,
+      required:true,
+      choices: nodes
+    }]
+  }
+})
+
+// edit things
+slash.post({
+  data: {
+    name:"edit",
+    description:"edit things...",
+    options:[
+    {
+      name:"node",
+      description:"the name of the node you want to edit",
+      type:3,
+      required:true,
+      choices: nodes
+    },{
+      name:"type",
+      description:"type of node properties you want to edit",
+      type:3,
+      required:true,
+      choices:[{
+        name:"name",value:"name"
+      },{
+        name:"slot",value:"slot"
+      },{
+        name:"capacity",value:"capacity"
+      },{
+        name:"status",value:"status"
+      }]
+    },{
+      name:"value",
+      description:"value of node properties you want to edit",
+      type:3,
+      required:true
+    }]
+  }
+})
+
+
+client.ws.on('INTERACTION_CREATE', async interaction => {
+  console.log(await interaction);
+    const command = interaction.data.name.toLowerCase();
+    const args = interaction.data.options;
+    console.log(interaction.channel_id)
+    var channel = await client.channels.fetch(interaction.channel_id)
+    console.log("arguments:",args)
+    var arguments = [];
+    for(var i in args) {
+      arguments.push(args[i].value)
+    }
+    console.log(arguments)
+
+    try {
+      if (fs.existsSync(`commands/${command}.js`)) {
+        var callback = await require(`./commands/${command}.js`).driver(arguments,client);
+      }
+    } catch(err) {
+      console.error(err)
+    }
+    console.log("callback->:",callback)
+    // sending callback
+    if(command == "create" || command == "info")
+    {
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data:{
+            embeds:[callback]
+          }
+        }
+      })
+    }
+
+    else
+    {
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data: {
+            content:callback
+          }
+        }
+      })
+    }
+});
+});
 client.on('message', async (message) => {
+
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);

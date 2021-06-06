@@ -1,34 +1,34 @@
 const discord = require('discord.js') 
 const fs = require('fs');
 module.exports = {
-    driver: async function(message,client,args){
-        var id = args[0].slice(2,-1);
-        let channels = message.guild.channels.cache.array();
+    driver: async function(args,client){
+        var id = args[0];
+        let channels = client.guilds.client.channels.cache.array();
         var flag = false;
-        
+        var channel;
         for(var j in channels) {
             if(channels[j].type === "text")
-                if(channels[j].id === id) {
+            if(channels[j].id === id) {
                     flag = true;
+                    channel = channels[j]
                     break;
                 }
         }
         console.log(flag)
         if(!flag) {
-            message.channel.send("Channel not found!");
-            return;
+            return "Channel not found!";
         } 
 
         let assigned = {
-            id: args[0].slice(2,-1)
+            id: args[0]
         }
         let data = JSON.stringify(assigned,null,2);
         try {
             fs.writeFileSync('./channel.json',data);
-            message.channel.send(`Channel ${args[0]} assigned for stats notification!`)
+            return `Channel ${channel.toString()} assigned for stats notification!`
         } catch (e) {
             console.log(e)
-            message.channel.send("some error has occured! (see console logs for info)");
+            return "some error has occured! (see console logs for info)";
         }
     }
 }
