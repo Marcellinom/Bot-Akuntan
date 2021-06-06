@@ -8,7 +8,7 @@ module.exports = {
         let item = args[2];
         let payment = args[3];
         let status = args[4];
-        let currTime = moment().tz("Asia/Jakarta").format('DD-MM-YYYY_HH.mm.ss').split('_');
+        let currTime = moment().tz("Asia/Jakarta").format('DD-MMMM-YYYY_HH.mm.ss').split('_');
         try {
             var embed = new discord.MessageEmbed()
             .setThumbnail(user.avatarURL())
@@ -35,13 +35,17 @@ module.exports = {
             item: item,
             method: payment,
             status: status,
-            date: currTime[0],
+            date: currTime[0].replaceAll('-','/'),
             time: currTime[1].replaceAll('.',':')
         };
 
         try {
             let data = JSON.stringify(obj,null,7);
-            fs.writeFileSync(`order/${currTime[0]+'__'+currTime[1]}.json`, data);
+            if(!fs.existsSync(`order/${currTime[0]}`))
+                fs.mkdirSync(`order/${currTime[0]}`);
+        
+            fs.writeFileSync(`order/${currTime[0]}/${currTime[1]}.json`, data);
+
             console.log('successfully saving order data!');
         } catch (e) {
             console.log(e);

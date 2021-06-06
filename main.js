@@ -54,6 +54,14 @@ slash.post({
   }
 });
 
+// export to excel
+slash.post({
+  data: {
+    name:"export",
+    description:"export the order data to excel"
+  }
+});
+
 // make new order
 slash.post({
   data: {
@@ -213,21 +221,20 @@ slash.post({
 
 
 client.ws.on('INTERACTION_CREATE', async interaction => {
-  console.log(await interaction);
     const command = interaction.data.name.toLowerCase();
     const args = interaction.data.options;
     console.log(interaction.channel_id)
     var channel = await client.channels.fetch(interaction.channel_id)
-    console.log("arguments:",args)
+
     var arguments = [];
     for(var i in args) {
       arguments.push(args[i].value)
     }
-    console.log(arguments)
+    console.log("arguments:",arguments);
 
     try {
       if (fs.existsSync(`commands/${command}.js`)) {
-        var callback = await require(`./commands/${command}.js`).driver(arguments,client);
+        var callback = await require(`./commands/${command}.js`).driver(arguments,client,interaction.channel_id);
       }
     } catch(err) {
       console.error(err)
@@ -259,6 +266,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     }
 });
 });
+
 client.on('message', async (message) => {
 
     if (!message.content.startsWith(prefix) || message.author.bot) return;
