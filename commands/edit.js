@@ -33,10 +33,12 @@ module.exports = {
                 node[opt] = args[2];
                 let data = JSON.stringify(node,null,5);
                 fs.writeFileSync(`storage/${args[0]}.json`, data);
-                fs.renameSync(`storage/${node.nama_node}.json`,`storage/${args[2]}.json`,
-                function(e) {
-                    if(e) {console.log(e);return "an error has occured, check logs!";}
-                });
+                if(opt === "nama_node")
+                    fs.renameSync(`storage/${args[0]}.json`,`storage/${args[2]}.json`,
+                    function(e) {
+                        if(e) {console.log(e);return "an error has occured, check logs!";}
+                    });
+
             } catch (e) {
                 console.log(e);
                 return "an error has occured, check logs!";

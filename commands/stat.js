@@ -46,13 +46,22 @@ module.exports = {
             var embed = new discord.MessageEmbed()
             for(var ind in STATS) {
                 embed.addField(`- _**${STATS[ind].nama_node}**_`,
-                `**:white_check_mark: ${STATS[ind].status} - ${STATS[ind].slot}/${STATS[ind].cap}**`);      
+                `**${STATS[ind].status} - ${STATS[ind].slot}/${STATS[ind].cap}**`);      
             }
+            embed.addField('\u200B','\u200B');
+            embed.addField("Petunjuk cara membaca informasi diatas:\n",'\u200B');
+            embed.addField("DC1-DC6 merupakan nama nodes. Jika anda memesan server kami. Anda dapat mengetahui nama nodes anda pada bagian Settings\n",'\u200B');
+            embed.addField(":white_check_mark: ONLINE | :x:OFFLINE | :warning: MAINTENANCE | :soon:Coming SoonStatus diatas meununjukan kondisi nodes tersebut\n",'\u200B');
+            embed.addField("0/32 - 32/32 Merupakan kapasitas RAM yang sudah terpakai / slot yang tersisa yang bisa dipesan.\n",'\u200B');
+            embed.addField("0/32 - menandakan nodes kosong dan anda bisa memesan server dengan spesifikasi RAM sampai 32 GB.\n",'\u200B');
+            embed.addField("28/32 - mengartikan bahwa server sudah terpakai 28 GB kapasitas RAMnya, dan anda bisa memesan server dengan spesifikasi RAM sampai 4 GB.\n",'\u200B');
+            embed.addField("32/32 - mengartikan bahwa seluruh kapasitas RAM pada server sudah terpakai dan anda tidak dapat melakukan pemesanan pada nodes tersebut.\n",'\u200B');
+
+
             embed.setTitle('**STATUS NODES**');
             embed.setURL('https://www.mcserverid.xyz/auth/login');
             embed.setColor('#1ABC9C');
             embed.setThumbnail('https://i.imgur.com/AJdpRyw.png');
-            embed.setImage('https://i.imgur.com/AJdpRyw.png');
             embed.setFooter('©️ Copyright Digital Cloud');
             // var omsg = await keyv.get('old');
             // if(typeof omsg === 'undefined') {

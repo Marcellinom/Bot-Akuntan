@@ -7,7 +7,7 @@ module.exports = {
             nama_node: node_name,
             slot: 0,
             cap: Number(args[1]),
-            status: "ONLINE"
+            status: ":white_check_mark: ONLINE"
         };
         let data = JSON.stringify(props,null,5);
         const embed = new discord.MessageEmbed()

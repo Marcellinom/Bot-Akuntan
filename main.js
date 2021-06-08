@@ -220,7 +220,22 @@ slash.post({
 })
 
 
-client.ws.on('INTERACTION_CREATE', async interaction => {
+client.ws.on('INTERACTION_CREATE', async (interaction,mes) => {
+  console.log("permission: ",interaction.member.permissions);
+
+    if(interaction.member.permissions !== '137438953471') {
+      console.log(interaction.member.user.username+" is not an admin!!");
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data: {
+            content:"You don't have permission to use this command!!"
+          }
+        }
+      })
+      return;
+    }
+
     const command = interaction.data.name.toLowerCase();
     const args = interaction.data.options;
     console.log(interaction.channel_id)
