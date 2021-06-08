@@ -98,8 +98,75 @@ slash.post({
 
 });
 
-client.on('ready', () => {
 
+client.on('ready', () => {
+  postOptions();
+});
+
+client.ws.on('INTERACTION_CREATE', async interaction => {
+  console.log("permission: ",interaction.member.permissions);
+
+    if(interaction.member.permissions !== '137438953471') {
+      console.log(interaction.member.user.username+" is not an admin!!");
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data: {
+            content:"You don't have permission to use this command!!"
+          }
+        }
+      })
+      return;
+    }
+
+    const command = interaction.data.name.toLowerCase();
+    const args = interaction.data.options;
+    console.log(interaction.channel_id)
+    var channel = await client.channels.fetch(interaction.channel_id)
+
+    var arguments = [];
+    for(var i in args) {
+      arguments.push(args[i].value)
+    }
+    console.log("arguments:",arguments);
+
+    try {
+      if (fs.existsSync(`commands/${command}.js`)) {
+        var callback = await require(`./commands/${command}.js`).driver(arguments,client,interaction.channel_id);
+      }
+    } catch(err) {
+      console.error(err)
+    }
+    console.log("callback->:",callback)
+    // sending callback
+    if(command == "create" || command == "info")
+    {
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data:{
+            embeds:[callback]
+          }
+        }
+      })
+    }
+
+    else
+    {
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data: {
+            content:callback
+          }
+        }
+      })
+    }
+    postOptions();
+});
+
+function postOptions() {
+  
   var filenames = fs.readdirSync('storage/');
 
   var nodes = [];
@@ -218,69 +285,7 @@ slash.post({
     }]
   }
 })
-
-
-client.ws.on('INTERACTION_CREATE', async (interaction,mes) => {
-  console.log("permission: ",interaction.member.permissions);
-
-    if(interaction.member.permissions !== '137438953471') {
-      console.log(interaction.member.user.username+" is not an admin!!");
-      client.api.interactions(interaction.id, interaction.token).callback.post({
-        data: {
-          type: 4,
-          data: {
-            content:"You don't have permission to use this command!!"
-          }
-        }
-      })
-      return;
-    }
-
-    const command = interaction.data.name.toLowerCase();
-    const args = interaction.data.options;
-    console.log(interaction.channel_id)
-    var channel = await client.channels.fetch(interaction.channel_id)
-
-    var arguments = [];
-    for(var i in args) {
-      arguments.push(args[i].value)
-    }
-    console.log("arguments:",arguments);
-
-    try {
-      if (fs.existsSync(`commands/${command}.js`)) {
-        var callback = await require(`./commands/${command}.js`).driver(arguments,client,interaction.channel_id);
-      }
-    } catch(err) {
-      console.error(err)
-    }
-    console.log("callback->:",callback)
-    // sending callback
-    if(command == "create" || command == "info")
-    {
-      client.api.interactions(interaction.id, interaction.token).callback.post({
-        data: {
-          type: 4,
-          data:{
-            embeds:[callback]
-          }
-        }
-      })
-    }
-
-    else
-    {
-      client.api.interactions(interaction.id, interaction.token).callback.post({
-        data: {
-          type: 4,
-          data: {
-            content:callback
-          }
-        }
-      })
-    }
-});
-});
+}
 /*
 client.on('message', async (message) => {
 
