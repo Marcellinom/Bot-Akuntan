@@ -10,7 +10,7 @@ client.once('ready', () => {
   console.log('bot active!') 
 })
 
-const slash = client.api.applications('844570150610927671').guilds('424506121751887873').commands
+const slash = client.api.applications('844570150610927671').guilds('839821772521209856').commands
 client.on('ready', ()=>{
 // create new node
 slash.post({
@@ -281,7 +281,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction,mes) => {
     }
 });
 });
-
+/*
 client.on('message', async (message) => {
 
     if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -322,5 +322,5 @@ client.on('message', async (message) => {
     }
       
 });
-
+*/
 client.login(process.env.maintoken)
