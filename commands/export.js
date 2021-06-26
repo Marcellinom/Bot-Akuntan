@@ -17,6 +17,7 @@ module.exports = {
                 let raw = fs.readFileSync(`order/${dirs[i]}/${files[j]}`);
                 let data = JSON.parse(raw);
                 items.push({
+                    INDEX:data.index,
                     BUYER:data.buyer, 
                     ITEM:data.item, 
                     METHOD:data.method, 
@@ -26,7 +27,7 @@ module.exports = {
                 });
             }
             var newWS = xl.utils.json_to_sheet(items,
-                {header:["BUYER","ITEM","METHOD","STATUS","DATE","TIME"]});
+                {header:["INDEX","BUYER","ITEM","METHOD","STATUS","DATE","TIME"]});
             
                 xl.utils.book_append_sheet(newWB, newWS, dirs[i]);
         }

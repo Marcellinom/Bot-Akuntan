@@ -1,17 +1,20 @@
 const discord = require('discord.js');
 const fs = require('fs');
 const client = new discord.Client();
-const Keyv = require('keyv');
-const keyv = new Keyv();
 const prefix = "!";
 require('dotenv').config();
 
-client.once('ready', () => { 
-  console.log('bot active!') 
-})
+client.once('ready', () => { console.log('bot active!') });
 
-const slash = client.api.applications('844570150610927671').guilds('839821772521209856').commands
-client.on('ready', ()=>{
+
+client.on('ready', ()=>{  
+  
+  // get guild id
+  // const guilds = client.guilds.cache;
+  // guilds.forEach(e => console.log(e.id))
+  
+const slash = client.api.applications(client.user.id).guilds('839821772521209856').commands
+
 // create new node
 slash.post({
   data: {
@@ -42,6 +45,16 @@ slash.post({
       description:"mention a channel",
       type:7,
       required:true
+    },{
+      name:"type",
+      description:"type of channel",
+      type:3,
+      required:true,
+      choices:[{
+        name: "stat",value: "stat"
+      },{
+        name: "order",value: "order"
+      }]
     }]
   }
 });
@@ -68,11 +81,6 @@ slash.post({
     name:"order",
     description:"make an order",
     options:[{
-      name:"channel",
-      description:"tag channel to announce",
-      type:7,
-      required:true
-    },{
       name:"user",
       description:"tag a user who orders this",
       type:6,
@@ -100,7 +108,7 @@ slash.post({
 
 
 client.on('ready', () => {
-  postOptions();
+  postOptions(client.user.id);
 });
 
 client.ws.on('INTERACTION_CREATE', async interaction => {
@@ -162,10 +170,12 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
         }
       })
     }
-    postOptions();
+    postOptions(client.user.id);
 });
 
-function postOptions() {
+function postOptions(bot_id) {
+  
+  const slash = client.api.applications(bot_id).guilds('424506121751887873').commands
   
   var filenames = fs.readdirSync('storage/');
 
