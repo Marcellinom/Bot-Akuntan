@@ -112,9 +112,11 @@ client.on('ready', () => {
 });
 
 client.ws.on('INTERACTION_CREATE', async interaction => {
-  console.log("permission: ",interaction.member.permissions);
+  const guild = await client.guilds.fetch('839821772521209856');
+  let member = await guild.members.fetch(interaction.member.user.id);
+  let isAdmin = member.hasPermission("ADMINISTRATOR");
 
-    if(interaction.member.permissions !== '137438953471') {
+    if(!isAdmin) {
       console.log(interaction.member.user.username+" is not an admin!!");
       client.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
@@ -175,7 +177,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
 function postOptions(bot_id) {
   
-  const slash = client.api.applications(bot_id).guilds('424506121751887873').commands
+  const slash = client.api.applications(bot_id).guilds('839821772521209856').commands
   
   var filenames = fs.readdirSync('storage/');
 
