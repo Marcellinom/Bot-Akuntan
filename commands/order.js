@@ -28,7 +28,7 @@ module.exports = {
             .setTimestamp()
             .setFooter('©️ Copyright Digital Cloud');
                     
-            await channel.send(embed);
+            await channel.send(user.toString(),embed);
 
             let obj = {
                 index: util.inc,
