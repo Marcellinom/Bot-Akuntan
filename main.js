@@ -1,9 +1,11 @@
-const discord = require('discord.js');
-const fs = require('fs');
+import discord from "discord.js"
+import fs from "fs"
 const client = new discord.Client();
 const prefix = "!";
-require('dotenv').config();
-
+import dotenv from "dotenv"
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+dotenv.config();
 client.once('ready', () => { console.log('bot active!') });
 
 
@@ -13,7 +15,7 @@ client.on('ready', ()=>{
   // const guilds = client.guilds.cache;
   // guilds.forEach(e => console.log(e.id))
   
-const slash = client.api.applications(client.user.id).guilds('839821772521209856').commands
+const slash = client.api.applications(client.user.id).guilds(process.env.guild_id).commands
 
 // create new node
 slash.post({
@@ -112,7 +114,7 @@ client.on('ready', () => {
 });
 
 client.ws.on('INTERACTION_CREATE', async interaction => {
-  const guild = await client.guilds.fetch('839821772521209856');
+  const guild = await client.guilds.fetch(process.env.guild_id);
   let member = await guild.members.fetch(interaction.member.user.id);
   let isAdmin = member.hasPermission("ADMINISTRATOR");
 
@@ -134,15 +136,18 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     console.log(interaction.channel_id)
     var channel = await client.channels.fetch(interaction.channel_id)
 
-    var arguments = [];
+    var command_args = [];
     for(var i in args) {
-      arguments.push(args[i].value)
+      command_args.push(args[i].value)
     }
-    console.log("arguments:",arguments);
-
+    console.log("arguments:",command_args);
+    var callback = "error (see console log)";
     try {
-      if (fs.existsSync(`commands/${command}.js`)) {
-        var callback = await require(`./commands/${command}.js`).driver(arguments,client,interaction.channel_id);
+      if (fs.existsSync(`commands/${command}.mjs`)) {
+        // var callback = await require(`./commands/${command}.js`).driver(command_args,client,interaction.channel_id);
+        let module = await import(`./commands/${command}.mjs`);
+        console.log(module);
+        callback = await module.driver(command_args,client,interaction.channel_id);
       }
     } catch(err) {
       console.error(err)
@@ -177,7 +182,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
 function postOptions(bot_id) {
   
-  const slash = client.api.applications(bot_id).guilds('839821772521209856').commands
+  const slash = client.api.applications(bot_id).guilds(process.env.guild_id).commands
   
   var filenames = fs.readdirSync('storage/');
 
@@ -315,7 +320,7 @@ client.on('message', async (message) => {
     const command = comTemp.shift().toLowerCase();
     
 
-    console.log("arguments:",args);
+    console.log("command_args:",args);
 
     if(command==='channel') {
       let raw = fs.readFileSync('./channel.json');
